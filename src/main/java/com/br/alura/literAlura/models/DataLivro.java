@@ -3,8 +3,12 @@ package com.br.alura.literAlura.models;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record DataLivro(@JsonAlias("title") String titulo,
-                        @JsonAlias("download_count") String downloads,
-                        @JsonAlias("bookshelves") String[] temas) {
+public record DataLivro(Integer id,
+                        @JsonAlias("title") String titulo,
+                        @JsonAlias("authors") List<DataAutor> autores,
+                        @JsonAlias("languages") List<String> idiomas,
+                        @JsonAlias("download_count") Integer downloads){
 }

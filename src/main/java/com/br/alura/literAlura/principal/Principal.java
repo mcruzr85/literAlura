@@ -1,12 +1,14 @@
 package com.br.alura.literAlura.principal;
 
+import com.br.alura.literAlura.models.DataLivraria;
 import com.br.alura.literAlura.models.DataLivro;
-import com.br.alura.literAlura.models.Informacao;
 import com.br.alura.literAlura.services.ConsumoApi;
 import com.br.alura.literAlura.services.ConverterJsonToObject;
 import com.br.alura.literAlura.services.OperacoesDatabase;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Principal {
@@ -56,20 +58,33 @@ public class Principal {
                     scanner.nextLine();//limpando o buffer
                     String bookName = scanner.nextLine();
                     System.out.println(bookName);
-                    String jsonLivros = consumoApi.obterDados(endereco + bookName.replace(" ","%20"));
+                    //obter o json
+                    System.out.println(endereco + bookName.replace(" ","%20"));
+                    String json = consumoApi.obterDados(endereco + bookName.replace(" ","%20"));
                     //String jsonLivro = consumoApi.obterDados("https://gutendex.com/books/5/");
-                    Informacao livros = conversor.converterDados(jsonLivros, Informacao.class);
-                    //DataLivro dataLivro = conversor.converterDados(jsonLivro, DataLivro.class);
-                  // System.out.println(jsonLivro);
-                    System.out.println(jsonLivros);
+                    System.out.println(json);
 
-                    System.out.println("*******************************");
-                    System.out.println(livros);
-                  // DataLivro livro = livros.filter(e -> e.)
-                 // System.out.println(dataLivro);
-                   // dataOperations.insertaLivro();
 
-                    break;
+                    //transformar o json a objeto DataLivraria que tiene una lista de livros
+                    var livraria = conversor.converterDados(json, DataLivraria.class);
+
+
+                   var optDataLivro = livraria.livros().stream()
+                                    .sorted(Comparator.comparing(DataLivro::titulo))
+                                    .findFirst();
+
+
+                    if(optDataLivro.isPresent()){
+                    DataLivro livro = optDataLivro.get();
+                    System.out.println(livro);
+                    System.out.println("Este é o livro que buscava?");
+                    Boolean eOLibro= scanner.nextBoolean();
+                    if(eOLibro){
+                        // dataOperations.insertaLivro();
+                        System.out.println("Livro salvo com sucesso!");
+                    }
+                }
+                break;
 
                 case 2:
                     System.out.println("Opção selecionada: " + option + " - Listar livros registrados");
