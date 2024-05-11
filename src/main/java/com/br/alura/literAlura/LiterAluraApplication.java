@@ -16,7 +16,6 @@ public class LiterAluraApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		//este metodo vai ser como o meu main
-		System.out.println("hola hola desde run");
 		Principal principal= new Principal();
 		principal.exibirMenu();
 

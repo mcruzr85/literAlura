@@ -1,33 +1,26 @@
 package com.br.alura.literAlura.principal;
 
+import com.br.alura.literAlura.models.DataAutor;
 import com.br.alura.literAlura.models.DataLivraria;
 import com.br.alura.literAlura.models.DataLivro;
 import com.br.alura.literAlura.services.ConsumoApi;
 import com.br.alura.literAlura.services.ConverterJsonToObject;
 import com.br.alura.literAlura.services.OperacoesDatabase;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class Principal {
+    // String endereco = "https://gutendex.com/books/";
+    String endereco = "https://gutendex.com/books/?search=";
     Scanner scanner = new Scanner(System.in);
     ConsumoApi consumoApi = new ConsumoApi();
-   // String endereco = "https://gutendex.com/books/";
-   String endereco = "https://gutendex.com/books/?search=";
-    String json = consumoApi.obterDados(endereco);
     ConverterJsonToObject conversor = new ConverterJsonToObject();
     OperacoesDatabase dataOperations = new OperacoesDatabase();
 
 
-
-
-
-
     public void exibirMenu(){
         boolean mostrar = true;
-        int option = 6;
+        int option = -1;
 
         String mensagem =
                 """
@@ -54,36 +47,8 @@ public class Principal {
                 case 1:
                     //conectarse a API e salvar na base de dados
                     System.out.println("Opção selecionada: " + option + "- Buscar um livro");
-                    System.out.println("Ingrese o nome do livro que deseja buscar:");
-                    scanner.nextLine();//limpando o buffer
-                    String bookName = scanner.nextLine();
-                    System.out.println(bookName);
-                    //obter o json
-                    System.out.println(endereco + bookName.replace(" ","%20"));
-                    String json = consumoApi.obterDados(endereco + bookName.replace(" ","%20"));
-                    //String jsonLivro = consumoApi.obterDados("https://gutendex.com/books/5/");
-                    System.out.println(json);
+                    getLivroFromApi();
 
-
-                    //transformar o json a objeto DataLivraria que tiene una lista de livros
-                    var livraria = conversor.converterDados(json, DataLivraria.class);
-
-
-                   var optDataLivro = livraria.livros().stream()
-                                    .sorted(Comparator.comparing(DataLivro::titulo))
-                                    .findFirst();
-
-
-                    if(optDataLivro.isPresent()){
-                    DataLivro livro = optDataLivro.get();
-                    System.out.println(livro);
-                    System.out.println("Este é o livro que buscava?");
-                    Boolean eOLibro= scanner.nextBoolean();
-                    if(eOLibro){
-                        // dataOperations.insertaLivro();
-                        System.out.println("Livro salvo com sucesso!");
-                    }
-                }
                 break;
 
                 case 2:
@@ -107,12 +72,74 @@ public class Principal {
                     String language = scanner.nextLine();
                     dataOperations.getLivrosLanguage(language);
                     break;
-                default:
+                case 6:
                     System.out.println("Muito obrigado ate mais!!");
                     mostrar = false;
+                    break;
+                default:
+                    System.out.println("Digite uma opção valida");
                     break;
             }
         }
 
     }
+
+    private void getLivroFromApi(){
+        System.out.println("Ingrese o nome do livro que deseja buscar:");
+        scanner.nextLine();//limpando o buffer
+        String bookName = scanner.nextLine();
+        System.out.println(bookName);
+        //obter o json
+        System.out.println(endereco + bookName.replace(" ","%20"));
+        String json = consumoApi.obterDados(endereco + bookName.replace(" ","%20"));
+        //String jsonLivro = consumoApi.obterDados("https://gutendex.com/books/5/");
+        System.out.println(json);
+
+
+        //transformar o json a objeto DataLivraria que tiene una lista de livros
+        var livraria = conversor.converterDados(json, DataLivraria.class);
+
+
+        var optDataLivro = livraria.livros().stream()
+             //   .sorted(Comparator.comparing(DataLivro::titulo))
+                .findFirst();
+
+
+        if(optDataLivro.isPresent()){
+            DataLivro livro = optDataLivro.get();
+
+            System.out.println(livro);
+            System.out.println("***************");
+
+            imprimirLivro(livro);
+            System.out.println("Este é o livro que buscava?");
+            System.out.println("Digite 1 se é o livro, 2 se não é o livro");
+            Integer livroEncontrado= scanner.nextInt();
+            scanner.nextLine();
+            if(livroEncontrado==1){
+                // dataOperations.insertaLivro();
+                System.out.println("Livro salvo com sucesso!");
+            }else{
+                System.out.println("Tente agregando mais palavras ao titulo");;
+            }
+        }
+
+    }
+
+    private void imprimirLivro(DataLivro dataLivro){
+
+        System.out.println("-------Livro---------");
+        System.out.println("Titulo: " + dataLivro.titulo());
+        dataLivro.autores().forEach(this::imprimirAutor);
+        System.out.println("Idioma: " + String.join(" ", dataLivro.idiomas()));
+        System.out.println("Numero de downloads: " + dataLivro.downloads());
+        System.out.println("---------------------");
+        System.out.println("\n");
+    }
+
+    private void imprimirAutor(DataAutor dataAutor){
+        System.out.println( "Autor: " + dataAutor.nome());
+    }
+
+
 }

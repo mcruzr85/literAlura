@@ -9,6 +9,6 @@ import java.util.List;
 public record DataLivro(Integer id,
                         @JsonAlias("title") String titulo,
                         @JsonAlias("authors") List<DataAutor> autores,
-                        @JsonAlias("languages") List<String> idiomas,
+                        @JsonAlias("languages") String[] idiomas,
                         @JsonAlias("download_count") Integer downloads){
 }
