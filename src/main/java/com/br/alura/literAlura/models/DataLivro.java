@@ -10,5 +10,8 @@ public record DataLivro(Integer id,
                         @JsonAlias("title") String titulo,
                         @JsonAlias("authors") List<DataAutor> autores,
                         @JsonAlias("languages") String[] idiomas,
-                        @JsonAlias("download_count") Integer downloads){
+                        @JsonAlias("download_count") Integer downloads,
+                        @JsonAlias("formats") DataFormatos formatos)
+
+{
 }

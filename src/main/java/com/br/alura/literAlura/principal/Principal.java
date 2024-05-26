@@ -1,21 +1,28 @@
 package com.br.alura.literAlura.principal;
 
-import com.br.alura.literAlura.models.DataAutor;
-import com.br.alura.literAlura.models.DataLivraria;
-import com.br.alura.literAlura.models.DataLivro;
+import com.br.alura.literAlura.models.*;
+import com.br.alura.literAlura.repositories.LivroRepository;
 import com.br.alura.literAlura.services.ConsumoApi;
 import com.br.alura.literAlura.services.ConverterJsonToObject;
 import com.br.alura.literAlura.services.OperacoesDatabase;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Principal {
+
+    private LivroRepository livroRepository;
     // String endereco = "https://gutendex.com/books/";
     String endereco = "https://gutendex.com/books/?search=";
     Scanner scanner = new Scanner(System.in);
     ConsumoApi consumoApi = new ConsumoApi();
     ConverterJsonToObject conversor = new ConverterJsonToObject();
     OperacoesDatabase dataOperations = new OperacoesDatabase();
+    List<Livro> livros = new ArrayList<>();
+
+    public Principal(LivroRepository livroRepository){
+        this.livroRepository = livroRepository;
+    }
 
 
     public void exibirMenu(){
@@ -53,7 +60,7 @@ public class Principal {
 
                 case 2:
                     System.out.println("Opção selecionada: " + option + " - Listar livros registrados");
-                    dataOperations.getAllLivros();
+                    getAllLivros();
                     break;
                 case 3:
                     System.out.println("Opção selecionada:" + option + " - Lista nossos autores");
@@ -101,27 +108,40 @@ public class Principal {
 
 
         var optDataLivro = livraria.livros().stream()
-             //   .sorted(Comparator.comparing(DataLivro::titulo))
+                .sorted(Comparator.comparing(DataLivro::titulo))
                 .findFirst();
 
 
         if(optDataLivro.isPresent()){
-            DataLivro livro = optDataLivro.get();
+            DataLivro dataLivro = optDataLivro.get();
 
-            System.out.println(livro);
+            System.out.println(dataLivro);
             System.out.println("***************");
 
-            imprimirLivro(livro);
+            //metodo para mostrar na tela as informações do livro
+            imprimirLivro(dataLivro);
+
             System.out.println("Este é o livro que buscava?");
             System.out.println("Digite 1 se é o livro, 2 se não é o livro");
-            Integer livroEncontrado= scanner.nextInt();
+            int livroEncontrado= scanner.nextInt();
             scanner.nextLine();
-            if(livroEncontrado==1){
+            if(livroEncontrado == 1){
                 // dataOperations.insertaLivro();
+
+                Livro livro = new Livro(dataLivro);
+               /* List<Autor> autores = dataLivro.autores().stream()//para varios autores
+                        .map(da -> new Autor(da))
+                        .collect(Collectors.toList());*/
+                Autor autor = new Autor(dataLivro.autores().get(0));
+
+                livro.setAutor(autor);
+                livroRepository.save(livro);
                 System.out.println("Livro salvo com sucesso!");
             }else{
-                System.out.println("Tente agregando mais palavras ao titulo");;
+                System.out.println("Tente agregando mais palavras ao titulo");
             }
+        }else{
+            System.out.println("Livro não encontrado");
         }
 
     }
@@ -133,12 +153,21 @@ public class Principal {
         dataLivro.autores().forEach(this::imprimirAutor);
         System.out.println("Idioma: " + String.join(" ", dataLivro.idiomas()));
         System.out.println("Numero de downloads: " + dataLivro.downloads());
+        System.out.println("Poster: " + dataLivro.formatos().poster());
         System.out.println("---------------------");
         System.out.println("\n");
     }
 
     private void imprimirAutor(DataAutor dataAutor){
         System.out.println( "Autor: " + dataAutor.nome());
+    }
+    private void getAllLivros(){
+        livros = new ArrayList<>();
+        livros = livroRepository.findAll();
+        livros.stream()
+                .sorted(Comparator.comparing(Livro::getIdiomas))
+                .forEach(System.out::println);
+
     }
 
 
