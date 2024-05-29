@@ -3,8 +3,8 @@ package com.br.alura.literAlura.models;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 
 @Entity
@@ -17,24 +17,39 @@ public class Autor {
     private String nome;
     private Integer anoNac;
     private Integer anoMorte;
+    //@OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    //private List<Livro> livros = new ArrayList<>();
 
-    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
-    private List<Livro> livros = new ArrayList<>();
+    @ManyToOne
+    private Livro livro;
 
     public Autor(){}
 
     public Autor(DataAutor dataAutor){
         this.nome = dataAutor.nome();
-        this.anoNac = OptionalInt.of(dataAutor.anoNac()).orElse(0);
-        this.anoMorte = OptionalInt.of(dataAutor.anoMor()).orElse(0);
-
+        this.anoNac = Optional.ofNullable(dataAutor.anoNac()).orElse(0);
+        this.anoMorte = Optional.ofNullable(dataAutor.anoMor()).orElse(0);
+       // this.anoMorte = OptionalInt.of(dataAutor.anoMor()).orElse(0);
     }
 
+    // this.avaliacao = OptionalDouble.of(Double.valueOf(dadosSerie.avaliacao())).orElse(0);
 
-    public void addLivro(Livro livro) {
-        this.livros.add(livro);
-        livro.setAutor(this);
-    }
+    //otra forma
+
+       /* try{
+            this.avaliacao = Double.valueOf(dadosSerie.avaliacao());
+        }catch(NumberFormatException ex){
+            this.avaliacao = 0.0;
+        }
+
+        try{
+            this.dataLancamento = LocalDate.parse(dadosSerie.dataLancamento());
+        }catch(DateTimeParseException ex){
+            this.dataLancamento = null;
+        }*/
+
+
+
 
     public Long getId() {
         return id;
@@ -67,23 +82,39 @@ public class Autor {
     public void setAnoMorte(Integer anoMorte) {
         this.anoMorte = anoMorte;
     }
-
+/*
     public List<Livro> getLivros() {
         return livros;
     }
 
+    //mio
+
+    public void setLivrosMio(List<Livro> livros) {
+        livros.forEach(l -> {
+            l.setAutor(this);
+            this.livros.add(l);
+        });
+    }
+
+    //de la clase
     public void setLivros(List<Livro> livros) {
+        livros.forEach(l -> l.setAutor(this));
         this.livros = livros;
+    }*/
+
+    public void setLivro(Livro livro) {
+       this.livro = livro;
+    }
+
+    public Livro getLivro() {
+        return livro;
     }
 
     @Override
     public String toString() {
-        return "Autor{" +
-                "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", anoNac=" + anoNac +
-                ", anoMorte=" + anoMorte +
-                ", livros=" + livros +
+        return  " Nome='" + nome + '\'' +
+                ", Ano de Nac=" + anoNac +
+                ", Ano da Morte=" + anoMorte +
                 '}';
     }
 }

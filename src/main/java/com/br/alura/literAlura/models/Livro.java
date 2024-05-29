@@ -22,18 +22,13 @@ public class Livro {
     private String poster;
     private Integer downloads;
 
-    @ManyToOne
-    @JoinColumn(name = "autor_id")
-    private Autor autor;
-   // private List<DataAutor> autores = new ArrayList<>();
+    //@ManyToOne
+    //@JoinColumn(name = "autor_id")
+    //private Autor autor;
 
-    public Autor getAutor() {
-        return autor;
-    }
+    @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Autor> autores = new ArrayList<>();
 
-    public void setAutor(Autor autor) {
-        this.autor = autor;
-    }
 
     public Livro(){}
     public Livro(DataLivro dataLivro){
@@ -63,8 +58,6 @@ public class Livro {
 
     }
 
-
-
     public Long getId() {
         return id;
     }
@@ -81,13 +74,14 @@ public class Livro {
         this.titulo = titulo;
     }
 
-   /* public List<DataAutor> getAutores() {
+    public List<Autor> getAutores() {
         return autores;
     }
 
-    public void setAutores(List<DataAutor> autores) {
+    public void setAutores(List<Autor> autores) {
+        autores.forEach(a-> a.setLivro(this));
         this.autores = autores;
-    }*/
+    }
 
     public String getIdiomas() {
         return idiomas;
@@ -115,25 +109,11 @@ public class Livro {
 
     @Override
     public String toString() {
-        return "Livro{" +
-                "id=" + id +
-                ", titulo='" + titulo + '\'' +
+        return  "titulo='" + titulo + '\'' +
                 ", idiomas='" + idiomas + '\'' +
                 ", poster='" + poster + '\'' +
                 ", downloads=" + downloads +
-                ", autor=" + autor +
+                ", autores=" + autores +
                 '}';
     }
-
-   /* @Override
-    public String toString() {
-        return "Livro::{" +
-                "id=" + id +
-                ", titulo='" + titulo + '\'' +
-                ", autores=" + autores +
-               // ", idiomas=" + Arrays.toString(idiomas) +
-                ", idiomas=" + idiomas +
-                ", downloads=" + downloads +
-                '}';
-    }*/
 }

@@ -55,12 +55,11 @@ public class Principal {
                     //conectarse a API e salvar na base de dados
                     System.out.println("Opção selecionada: " + option + "- Buscar um livro");
                     getLivroFromApi();
-
                 break;
 
                 case 2:
                     System.out.println("Opção selecionada: " + option + " - Listar livros registrados");
-                    getAllLivros();
+                    getAllLivrosFromDb();
                     break;
                 case 3:
                     System.out.println("Opção selecionada:" + option + " - Lista nossos autores");
@@ -91,32 +90,40 @@ public class Principal {
 
     }
 
-    private void getLivroFromApi(){
+    //metodo que obten o json da API e o transforma no objeto livaria(array de livros)
+    private DataLivraria getLivraria() {
         System.out.println("Ingrese o nome do livro que deseja buscar:");
         scanner.nextLine();//limpando o buffer
-        String bookName = scanner.nextLine();
-        System.out.println(bookName);
-        //obter o json
-        System.out.println(endereco + bookName.replace(" ","%20"));
-        String json = consumoApi.obterDados(endereco + bookName.replace(" ","%20"));
-        //String jsonLivro = consumoApi.obterDados("https://gutendex.com/books/5/");
-        System.out.println(json);
+        var bookName = scanner.nextLine();
 
+        //obter o json
+        var json = consumoApi.obterDados(endereco + bookName.replace(" ","%20"));
 
         //transformar o json a objeto DataLivraria que tiene una lista de livros
         var livraria = conversor.converterDados(json, DataLivraria.class);
+        return livraria;
+    }
 
 
-        var optDataLivro = livraria.livros().stream()
-                .sorted(Comparator.comparing(DataLivro::titulo))
+
+    private Optional<DataLivro> getLivroFromLivraria(DataLivraria dataLivraria){
+       return dataLivraria.livros().stream()
+                .sorted(Comparator.comparing(DataLivro::id))
                 .findFirst();
+    }
 
 
-        if(optDataLivro.isPresent()){
+    private void getLivroFromApi(){
+
+        DataLivraria dLivraria = getLivraria();
+        Optional<DataLivro> optDataLivro= getLivroFromLivraria(dLivraria);
+
+       if(optDataLivro.isPresent()){
             DataLivro dataLivro = optDataLivro.get();
 
             System.out.println(dataLivro);
             System.out.println("***************");
+
 
             //metodo para mostrar na tela as informações do livro
             imprimirLivro(dataLivro);
@@ -126,16 +133,16 @@ public class Principal {
             int livroEncontrado= scanner.nextInt();
             scanner.nextLine();
             if(livroEncontrado == 1){
-                // dataOperations.insertaLivro();
-
                 Livro livro = new Livro(dataLivro);
                /* List<Autor> autores = dataLivro.autores().stream()//para varios autores
                         .map(da -> new Autor(da))
                         .collect(Collectors.toList());*/
-                Autor autor = new Autor(dataLivro.autores().get(0));
 
-                livro.setAutor(autor);
-                livroRepository.save(livro);
+                List<Autor> autores = new ArrayList<>();
+                dataLivro.autores().forEach(dA -> autores.add(new Autor(dA)));
+
+               livro.setAutores(autores);//aqui le pongo el livro dentro a cada autor
+               livroRepository.save(livro);
                 System.out.println("Livro salvo com sucesso!");
             }else{
                 System.out.println("Tente agregando mais palavras ao titulo");
@@ -161,13 +168,11 @@ public class Principal {
     private void imprimirAutor(DataAutor dataAutor){
         System.out.println( "Autor: " + dataAutor.nome());
     }
-    private void getAllLivros(){
-        livros = new ArrayList<>();
+    private void getAllLivrosFromDb(){
         livros = livroRepository.findAll();
         livros.stream()
                 .sorted(Comparator.comparing(Livro::getIdiomas))
                 .forEach(System.out::println);
-
     }
 
 
