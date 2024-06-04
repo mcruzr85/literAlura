@@ -9,12 +9,12 @@ E possivel interagir com a API Gutendex (https://gutendex.com/) e salvar as info
 
 Tecnologias utilizadas
 -----------------------------------------------------------------
-Java 17
-Maven
-Spring Boot
-Jackson Databind
-Spring Data JPA
-Banco de dados PostgreSQL
+* Java 17
+* Maven
+* Spring Boot
+* Jackson Databind
+* Spring Data JPA
+* Banco de dados PostgreSQL
 
 
 Funcionalidades do programa
