@@ -17,11 +17,11 @@ public class Autor {
     private String nome;
     private Integer anoNac;
     private Integer anoMorte;
-    //@OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    //private List<Livro> livros = new ArrayList<>();
+    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Livro> livros = new ArrayList<>();
 
-    @ManyToOne
-    private Livro livro;
+  /*  @ManyToOne
+    private Livro livro;*/
 
     public Autor(){}
 
@@ -82,39 +82,47 @@ public class Autor {
     public void setAnoMorte(Integer anoMorte) {
         this.anoMorte = anoMorte;
     }
-/*
+
     public List<Livro> getLivros() {
         return livros;
     }
 
+    //de la clase
+//    public void setLivros(List<Livro> livros) {
+//        livros.forEach(l -> l.setAutor(this));
+//        this.livros = livros;
+//    }
+
     //mio
 
-    public void setLivrosMio(List<Livro> livros) {
-        livros.forEach(l -> {
+  public void setLivros(List<Livro> livros) {
+       livros.forEach(l -> {
             l.setAutor(this);
             this.livros.add(l);
-        });
+       });
     }
-
-    //de la clase
-    public void setLivros(List<Livro> livros) {
-        livros.forEach(l -> l.setAutor(this));
-        this.livros = livros;
-    }*/
-
     public void setLivro(Livro livro) {
-       this.livro = livro;
+        livro.setAutor(this);
+        this.livros.add(livro);
     }
 
-    public Livro getLivro() {
-        return livro;
-    }
 
     @Override
     public String toString() {
-        return  " Nome='" + nome + '\'' +
-                ", Ano de Nac=" + anoNac +
-                ", Ano da Morte=" + anoMorte +
-                '}';
+        return   nome ;
+    }
+
+//    @Override
+//    public String toString() {
+//        return  " Nome: " + nome +
+//                " | Ano de Nacimento: " + anoNac +
+//                " | Ano da Morte: " + anoMorte +
+//                " | Livros[ " + livros + "]";
+//    }
+
+
+    public void imprimeAutor(){
+        System.out.println("------Autor-------");
+        System.out.println("Nome: " + this.getNome() );
     }
 }

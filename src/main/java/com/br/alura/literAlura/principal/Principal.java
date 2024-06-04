@@ -1,27 +1,30 @@
 package com.br.alura.literAlura.principal;
 
 import com.br.alura.literAlura.models.*;
+import com.br.alura.literAlura.repositories.AutorRepository;
 import com.br.alura.literAlura.repositories.LivroRepository;
 import com.br.alura.literAlura.services.ConsumoApi;
 import com.br.alura.literAlura.services.ConverterJsonToObject;
 import com.br.alura.literAlura.services.OperacoesDatabase;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Principal {
 
+    private AutorRepository autorRepository;
     private LivroRepository livroRepository;
     // String endereco = "https://gutendex.com/books/";
-    String endereco = "https://gutendex.com/books/?search=";
+    private final String ENDERECO = "https://gutendex.com/books/?search=";
     Scanner scanner = new Scanner(System.in);
     ConsumoApi consumoApi = new ConsumoApi();
     ConverterJsonToObject conversor = new ConverterJsonToObject();
     OperacoesDatabase dataOperations = new OperacoesDatabase();
     List<Livro> livros = new ArrayList<>();
+    List<Autor> autores = new ArrayList<>();
 
-    public Principal(LivroRepository livroRepository){
+    public Principal(LivroRepository livroRepository, AutorRepository autorRepository){
         this.livroRepository = livroRepository;
+        this.autorRepository = autorRepository;
     }
 
 
@@ -39,9 +42,10 @@ public class Principal {
                 1) Buscar livro pelo título
                 2) Listar livros registrados
                 3) Lista nossos autores
-                4) Listar autores em determinado ano
+                4) Listar autores vivos em determinado ano
                 5) Listar livros em determinado idioma
-                6) Sair
+                6) Listar Top 5 livros
+                0) Sair
                 *************************************
                 """;
 
@@ -63,22 +67,21 @@ public class Principal {
                     break;
                 case 3:
                     System.out.println("Opção selecionada:" + option + " - Lista nossos autores");
-                    dataOperations.getAllAutores();
+                    getAllAutoresFromDb();
                     break;
                 case 4:
                     System.out.println("Opção selecionada: " + option + " - Listar autores em determinado ano");
-                    System.out.println("Ingrese o ano:");
-                    Integer ano = scanner.nextInt();
-                    dataOperations.getAutoresAno(ano);
-                    scanner.nextLine();
+                    getAutoresVivoAno();
                     break;
                 case 5:
                     System.out.println("Opção selecionada: " + option + " - Listar livros em determinado idioma");
-                    System.out.println("Ingrese a lingua:");
-                    String language = scanner.nextLine();
-                    dataOperations.getLivrosLanguage(language);
+                    getLivrosNaLingua();
                     break;
                 case 6:
+                    System.out.println("Opção selecionada: " + option + " - Top 5 Livros");
+                    getTop5Livros();
+                    break;
+                case 0:
                     System.out.println("Muito obrigado ate mais!!");
                     mostrar = false;
                     break;
@@ -97,7 +100,7 @@ public class Principal {
         var bookName = scanner.nextLine();
 
         //obter o json
-        var json = consumoApi.obterDados(endereco + bookName.replace(" ","%20"));
+        var json = consumoApi.obterDados(ENDERECO + bookName.replace(" ","%20"));
 
         //transformar o json a objeto DataLivraria que tiene una lista de livros
         var livraria = conversor.converterDados(json, DataLivraria.class);
@@ -106,43 +109,42 @@ public class Principal {
 
 
 
-    private Optional<DataLivro> getLivroFromLivraria(DataLivraria dataLivraria){
-       return dataLivraria.livros().stream()
-                .sorted(Comparator.comparing(DataLivro::id))
-                .findFirst();
-    }
+
 
 
     private void getLivroFromApi(){
 
         DataLivraria dLivraria = getLivraria();
-        Optional<DataLivro> optDataLivro= getLivroFromLivraria(dLivraria);
+
+        Optional<DataLivro> optDataLivro = dLivraria.livros().stream()
+                                           .sorted(Comparator.comparing(DataLivro::id))
+                                           .findFirst();
 
        if(optDataLivro.isPresent()){
             DataLivro dataLivro = optDataLivro.get();
 
-            System.out.println(dataLivro);
-            System.out.println("***************");
-
 
             //metodo para mostrar na tela as informações do livro
-            imprimirLivro(dataLivro);
+            imprimirDataLivro(dataLivro);
 
             System.out.println("Este é o livro que buscava?");
             System.out.println("Digite 1 se é o livro, 2 se não é o livro");
             int livroEncontrado= scanner.nextInt();
             scanner.nextLine();
             if(livroEncontrado == 1){
+
+                Autor autor = new Autor(dataLivro.autores().get(0));
                 Livro livro = new Livro(dataLivro);
+                autor.setLivro(livro);
                /* List<Autor> autores = dataLivro.autores().stream()//para varios autores
                         .map(da -> new Autor(da))
                         .collect(Collectors.toList());*/
 
-                List<Autor> autores = new ArrayList<>();
-                dataLivro.autores().forEach(dA -> autores.add(new Autor(dA)));
-
-               livro.setAutores(autores);//aqui le pongo el livro dentro a cada autor
-               livroRepository.save(livro);
+//                List<Autor> autores = new ArrayList<>();
+//                dataLivro.autores().forEach(dA -> autores.add(new Autor(dA)));
+//
+//               livro.setAutores(autores);//aqui le pongo el livro dentro a cada autor
+               autorRepository.save(autor);
                 System.out.println("Livro salvo com sucesso!");
             }else{
                 System.out.println("Tente agregando mais palavras ao titulo");
@@ -153,7 +155,7 @@ public class Principal {
 
     }
 
-    private void imprimirLivro(DataLivro dataLivro){
+    private void imprimirDataLivro(DataLivro dataLivro){
 
         System.out.println("-------Livro---------");
         System.out.println("Titulo: " + dataLivro.titulo());
@@ -165,14 +167,95 @@ public class Principal {
         System.out.println("\n");
     }
 
+
     private void imprimirAutor(DataAutor dataAutor){
         System.out.println( "Autor: " + dataAutor.nome());
     }
+
+
     private void getAllLivrosFromDb(){
         livros = livroRepository.findAll();
-        livros.stream()
-                .sorted(Comparator.comparing(Livro::getIdiomas))
-                .forEach(System.out::println);
+        imprimirLivros(livros);
+    }
+
+    private void imprimirLivros(List<Livro> livros) {
+        System.out.println("================ Livros =====================");
+        livros.forEach(l-> {
+            System.out.println("---------------------------------------------");
+            System.out.println("Titulo: " + l.getTitulo());
+            System.out.println("Idioma: " + l.getIdioma());
+            System.out.println("Downloads: " + l.getDownloads());
+            System.out.println("Poster: " + l.getPoster());
+            System.out.println("Autor: " + l.getAutor());
+            System.out.println("---------------------------------------------");
+        });
+    }
+
+ /*   private void getAllAutoresFromDb(){
+
+        autores = autorRepository.findAll();
+        System.out.println("*** Autores ***");
+
+                //.sorted(Comparator.comparing(Livro::getIdiomas))
+        autores.forEach(a-> {
+                    System.out.println("---------------------------------------");
+                    System.out.println("Nome: " + a.getNome());
+                    System.out.println("Nacimento: " + a.getAnoNac());
+                    System.out.println("Morte: " + a.getAnoMorte());
+                    System.out.print("Livros: [" );
+                    a.getLivros().forEach(System.out::print);
+                    System.out.println("]");
+                    System.out.println("---------------------------------------");
+                });
+    }*/
+
+
+         private void getAllAutoresFromDb(){
+             autores = autorRepository.findAll();
+             imprimirAutores(autores);
+          }
+
+    private void imprimirAutores(List<Autor> autores) {
+        System.out.println("================ Autores =====================");
+        autores.forEach(a-> {
+            System.out.println("---------------------------------------------");
+            System.out.println("Nome: " + a.getNome());
+            System.out.println("Nacimento: " + a.getAnoNac());
+            System.out.println("Morte: " + a.getAnoMorte());
+
+            List<String> listaTitulos = new ArrayList<String>();
+            a.getLivros().forEach(l -> listaTitulos.add(l.getTitulo()));
+
+            System.out.println("Livros: " + listaTitulos);
+            System.out.println("---------------------------------------------");
+        });
+    }
+
+    private void getAutoresVivoAno(){
+        System.out.println("Ingrese o ano:");
+        Integer ano = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println(ano);
+
+      /*  List<Autor> autoresVivos = autorRepository.FindByanoNacLessThanEqualAndAnoMorteGreaterThan(ano);
+        autoresVivos.forEach(System.out::println);*/
+        System.out.println("*** Autores vivos no ano " + ano + " ***");
+    }
+
+    private void getTop5Livros(){
+        List<Livro> topLivros = livroRepository.findTop5ByOrderByDownloadsDesc();
+        System.out.println("*** Top 5 Livros ***");
+        topLivros.forEach(System.out::println);
+    }
+    private void getLivrosNaLingua(){
+         scanner.nextLine();
+        System.out.println("Ingrese o idioma: ");
+        String lingua = scanner.nextLine();
+
+        List<Livro> livrosNumaLingua = livroRepository.findByIdioma(lingua);
+        System.out.println("*** Livros no idioma" + lingua + " ***");
+        livrosNumaLingua.forEach(l->
+                System.out.println("Titulo: " + l.getTitulo() + " , Número de downloads: " + l.getDownloads()));
     }
 
 
