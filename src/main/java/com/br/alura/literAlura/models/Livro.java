@@ -17,7 +17,6 @@ public class Livro {
 
     @Column(unique = true)
     private String titulo;
-
     private String idioma;
     private String poster;
     private Integer downloads;
@@ -26,36 +25,12 @@ public class Livro {
     //@JoinColumn(name = "autor_id")
     private Autor autor;
 
-//    @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    private List<Autor> autores = new ArrayList<>();
-
-
     public Livro(){}
     public Livro(DataLivro dataLivro){
         this.titulo = dataLivro.titulo();
         this.downloads = dataLivro.downloads();
         this.idioma = String.join(" ", dataLivro.idiomas());
         this.poster = dataLivro.formatos().poster();
-
-        //**asignando valores por default para no tener problemas
-
-        // this.avaliacao = OptionalDouble.of(Double.valueOf(dadosSerie.avaliacao())).orElse(0);
-
-        //otra forma
-
-       /* try{
-            this.avaliacao = Double.valueOf(dadosSerie.avaliacao());
-        }catch(NumberFormatException ex){
-            this.avaliacao = 0.0;
-        }
-
-        try{
-            this.dataLancamento = LocalDate.parse(dadosSerie.dataLancamento());
-        }catch(DateTimeParseException ex){
-            this.dataLancamento = null;
-        }*/
-
-
     }
 
     public Long getId() {
@@ -73,15 +48,6 @@ public class Livro {
     public void setTitulo(String titulo) {
         this.titulo = titulo;
     }
-
-//    public List<Autor> getAutores() {
-//        return autores;
-//    }
-//
-//    public void setAutores(List<Autor> autores) {
-//        autores.forEach(a-> a.setLivro(this));
-//        this.autores = autores;
-//    }
 
 
     public Autor getAutor() {
@@ -126,16 +92,5 @@ public class Livro {
         System.out.println("Nome: " + this.getTitulo());
         System.out.println("Idioma: " + this.getIdioma());
     }
-
-    /*
-    * @Override
-    public String toString() {
-        return  "Titulo: " + titulo  +
-                " | Idioma: " + idioma +
-                " | Downloads: " + downloads +
-                " | Poster: " + poster
-                ;
-    }*/
-
 
 }
