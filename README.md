@@ -2,7 +2,7 @@ Challenge Catálogo de livros LiterAlura - Programa ONE(Oracle Next Education T6
 -----------------------------------------------------------------
 
 ### Bem-vindo a LiterAlura! 🌻
-O Challenge tem como finalidade fazer um catálogo de livros em Java. O Programa tem interção com o usuário via console através de um menu com opções.
+O Challenge tem como finalidade fazer um catálogo de livros usando a linguagem Java. O programa tem interação com o usuário via console através de um menu com opções.
 Para fazer o catálogo de livros foi preciso interagir com a API Gutendex (https://gutendex.com/) e salvar as informações de livros e autores num banco de dados feito em PostgreSQL. 
 Foi usada a biblioteca Jackson Databind para desserializar o json da API nos modelos de negocio criados na app.
 
