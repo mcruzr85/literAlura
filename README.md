@@ -24,13 +24,13 @@ Instalação
 -----------------------------------------------------------------
 Será preciso que:
 
-1)- Clone este repositório: git clone https://github.com/mcruzr85/literAlura
-2)- Certifique-se de ter o Java JDK 8 ou superior instalado.
-3)- Importe o projeto em sua IDE preferida (IntelliJ IDEA ou Eclipse).
-4)- Instale e configure o PostgreSQL (precisa ter un Banco de Dados com o nome "literalura") 
-5)- Atualize as configurações no arquivo application.properties.
+1) Clone este repositório: git clone https://github.com/mcruzr85/literAlura
+2) Certifique-se de ter o Java JDK 8 ou superior instalado.
+3) Importe o projeto em sua IDE preferida (IntelliJ IDEA ou Eclipse).
+4) Instale e configure o PostgreSQL (precisa ter un Banco de Dados com o nome "literalura") 
+5) Atualize as configurações no arquivo application.properties.
     (neste caso tem referencias a variavéis de entorno que vc precisa criar no seu computador)
-6)-Execute a classe LiteraluraApplication.java.
+6) Execute a classe LiteraluraApplication.java.
 
 ![img_2.png](img_2.png)
 
