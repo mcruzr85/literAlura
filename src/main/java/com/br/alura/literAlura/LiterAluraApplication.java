@@ -15,8 +15,8 @@ public class LiterAluraApplication implements CommandLineRunner {
 	public static void main(String[] args) {
 		SpringApplication.run(LiterAluraApplication.class, args);
 	}
-@Autowired
-private AutorRepository autorRepository;
+    @Autowired
+    private AutorRepository autorRepository;
 	@Autowired
 	private LivroRepository livroRepository;
 
