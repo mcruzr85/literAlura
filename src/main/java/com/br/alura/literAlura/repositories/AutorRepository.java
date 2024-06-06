@@ -15,4 +15,6 @@ public interface AutorRepository extends JpaRepository <Autor, Long> {
     List<Autor> BuscaAutoresVivosNumAnoDado(Integer ano);
 
    Optional<Autor> findByNomeEqualsIgnoreCase(String nome);
+
+    Optional<Autor> findFirstByNomeContainingIgnoreCase(String nome);
 }

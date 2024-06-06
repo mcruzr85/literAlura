@@ -9,7 +9,7 @@ Foi usada a biblioteca Jackson Databind para desserializar o json da API nos mod
 
 Funcionalidades do programa 📚
 -----------------------------------------------------------------
-   ![img.png](img.png)
+   ![img_1.png](img_1.png)
 
 Tecnologias utilizadas
 -----------------------------------------------------------------

@@ -8,6 +8,8 @@ import com.br.alura.literAlura.services.ConverterJsonToObject;
 
 import java.util.*;
 
+import static java.util.Comparator.*;
+
 public class Principal {
 
     private AutorRepository autorRepository;
@@ -43,6 +45,7 @@ public class Principal {
                  💚 4) Listar autores vivos em determinado ano 
                  🩵 5) Listar livros em determinado idioma
                  💙 6) Listar Top 5 livros 
+                 🩷 7) Buscar autor por nome
                  💜 0) Sair
                 ====================================================
                 """;
@@ -76,8 +79,12 @@ public class Principal {
                         getLivrosNaLingua();
                         break;
                     case 6:
-                        System.out.println("Opção " + option + " selecionada:  Buscar Top 5 Livros");
+                        System.out.println("Opção " + option + " selecionada: Buscar Top 5 Livros");
                         getTop5Livros();
+                        break;
+                    case 7:
+                        System.out.println("Opção " + option + " selecionada: Buscar autor por nome");
+                        getAutorPorNome();
                         break;
                     case 0:
                         System.out.println("Muito obrigado ate mais!!");
@@ -117,7 +124,7 @@ public class Principal {
 
         //pego o do menor id
         Optional<DataLivro> optDataLivro = dLivraria.livros().stream()
-                .sorted(Comparator.comparing(DataLivro::id))
+                .sorted(comparing(DataLivro::id))
                 .findFirst();
 
         if(optDataLivro.isPresent()){
@@ -189,6 +196,7 @@ public class Principal {
         if(livros.isEmpty()){
             System.out.println("========== Não existem livros registrados ==========");
         }
+        livros.sort(Comparator.comparing(Livro::getIdioma));
         imprimirLivros(livros);
     }
 
@@ -213,7 +221,9 @@ public class Principal {
             System.out.println("=========== Não existem autores registrados ============");
         }else{
           System.out.println("=================== Autores ========================");
-          imprimirAutores(autores);
+
+            autores.sort(Comparator.comparing(Autor::getNome));
+            imprimirAutores(autores);
          }
         }
 
@@ -288,5 +298,25 @@ public class Principal {
         }
     }
 
+    private void getAutorPorNome() {
+        scanner.nextLine();
+        System.out.println("Inserte o nome do autor que deseja procurar");
+        String nome = scanner.nextLine();
+
+        Optional<Autor> optAutor = autorRepository.findFirstByNomeContainingIgnoreCase(nome);
+        if(optAutor.isPresent()){
+
+            Autor autorBuscado = optAutor.get();
+            List<Autor> listaParaImprimir = new ArrayList<>();
+            listaParaImprimir.add(autorBuscado);
+            System.out.println();
+            System.out.println("================== Dados do Autor ==================");
+            imprimirAutores(listaParaImprimir);
+
+        }else{
+            System.out.println("========== Autor não registrado no banco de dados ============");
+            System.out.println('\n');
+        }
+    }
 
 }
